@@ -1,21 +1,27 @@
 import getpass
 import sys
+import json
+
 from src import crypto_utils
 from src import storage
 
 VAULT_FILE = "vault.json"
 
 def create_new_vault() -> tuple[bytes, str, dict]:
-    """
-    Guía al usuario en la creación de una contraseña maestra nueva
-    y devuelve el salt, el hash y el diccionario de contraseñas vacío.
-    """
+    # Guía al usuario en la creación de una contraseña maestra nueva y 
+    # devuelve el salt, el hash y el diccionario de contraseñas vacío.
+    
     print("No se encontró ninguna bóveda. Vamos a crear una nueva.")
     master_password = getpass.getpass("Crea tu contraseña maestra: ")
     confirm = getpass.getpass("Confírmala de nuevo: ")
 
     if master_password != confirm:
         print("Las contraseñas no coinciden. Inténtalo de nuevo.")
+        sys.exit(1)
+        
+    # Comprobar que la contraseña tiene una longitud mínima
+    if len(master_password) < 8:
+        print("[!] La contraseña maestra debe tener al menos 8 caracteres.")
         sys.exit(1)
 
     salt = crypto_utils.generate_salt()
@@ -28,11 +34,16 @@ def create_new_vault() -> tuple[bytes, str, dict]:
     return salt, master_hash, passwords
 
 def load_existing_vault() -> tuple[bytes, str, bytes, dict]:
-    """
-    Pide la contraseña maestra, la verifica, y devuelve todo lo necesario
-    para trabajar con la bóveda sin volver a leer el archivo.
-    """
-    vault_data = storage.load_vault(VAULT_FILE)
+    # Pide la contraseña maestra, la verifica, y devuelve todo lo necesario
+    # para trabajar con la bóveda sin volver a leer el archivo.
+    
+    try:
+        vault_data = storage.load_vault(VAULT_FILE)
+        
+    except (json.JSONDecodeError, KeyError):
+        print ("[!] Error al leer la bóveda. El archivo puede estar corrupto o no tener el formato esperado.")
+        sys.exit(1)
+        
     master_password = getpass.getpass("Introduce tu contraseña maestra: ")
 
     entered_hash = crypto_utils.hash_master_password(master_password, vault_data["salt"])
@@ -47,9 +58,8 @@ def load_existing_vault() -> tuple[bytes, str, bytes, dict]:
     return vault_data["salt"], vault_data["master_hash"], key, vault_data["passwords"]
 
 def add_password(key: bytes, passwords: dict) -> None:
-    """
-    Pide un servicio y una contraseña, la cifra, y la añade al diccionario.
-    """
+    # Pide un servicio y una contraseña, la cifra, y la añade al diccionario.
+    
     service = input("Nombre del servicio (ej. Netflix): ").strip()
     password = getpass.getpass(f"Contraseña para {service}: ")
 
@@ -60,9 +70,8 @@ def add_password(key: bytes, passwords: dict) -> None:
 
 
 def view_password(key: bytes, passwords: dict) -> None:
-    """
-    Pide un servicio y muestra su contraseña descifrada, si existe.
-    """
+    # Pide un servicio y muestra su contraseña descifrada, si existe.
+    
     service = input("¿Qué servicio quieres ver?: ").strip()
 
     if service not in passwords:

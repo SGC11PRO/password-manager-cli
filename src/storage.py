@@ -3,16 +3,12 @@ import os
 import base64
 
 def vault_exists (filepath: str) -> bool:
-    """
-    Comprueba si ya existe un archivo de bóveda (vault) en la ruta dada
-    """
+    # Comprueba si ya existe un archivo de bóveda (vault) en la ruta dada
     
     return os.path.isfile(filepath)
 
 def save_vault (filepath: str, salt: bytes, master_hash: str, passwords: dict) -> None: 
-    """
-    Guarda el estado completo de la bóveda en un archivo JSON
-    """
+    # Guarda el estado completo de la bóveda en un archivo JSON
     
     data = {
         "salt": base64.urlsafe_b64encode(salt).decode(),
@@ -28,10 +24,8 @@ def save_vault (filepath: str, salt: bytes, master_hash: str, passwords: dict) -
         
         
 def load_vault (filepath: str) -> dict: 
-    """
-    Carga la bóveda desde el archivo JSON y devuelve sus datos,
-    reconstruyendo el salt y las contraseñas cifradas como bytes.
-    """
+    # Carga la bóveda desde el archivo JSON y devuelve sus datos,
+    # reconstruyendo el salt y las contraseñas cifradas como bytes.
     
     with open(filepath, "r") as f:
         data = json.load(f)
