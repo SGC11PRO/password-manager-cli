@@ -75,6 +75,9 @@ python main.py
 
 On first run, you'll be asked to create a master password. On subsequent runs, you'll be asked to enter it to unlock your vault. From there, a simple menu lets you add, view, and list stored passwords.
 
+> **IMPORTANT**
+> If is already an existing vault.json file, delete it, so you can set up your own vault with your own master password. If not, you won't be able to access the existing vault without the correct master password.
+
 ## What I learned building this
 
 This project was my introduction to applied cryptography before starting my degree. Some of the key takeaways:
